@@ -1,0 +1,80 @@
+name: Build Alphabet Runner APK
+
+on:
+  push:
+    branches: [ main, 'claude/*' ]
+    paths:
+      - 'alphabet_runner/**'
+      - '.github/workflows/build-alphabet-runner.yml'
+  workflow_dispatch:
+
+jobs:
+  build-apk:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Flutter 3.24
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.3'
+          channel: 'stable'
+          cache: true
+
+      - name: Get pub dependencies
+        working-directory: alphabet_runner
+        run: flutter pub get
+
+      - name: Analyze (non-fatal)
+        working-directory: alphabet_runner
+        run: flutter analyze --no-fatal-infos || true
+
+      - name: Build debug APK
+        working-directory: alphabet_runner
+        run: flutter build apk --debug --no-shrink
+
+      - name: Build release APK (signed with debug key)
+        working-directory: alphabet_runner
+        run: flutter build apk --release --no-shrink
+
+      - name: Upload Debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: alphabet-runner-debug-apk
+          path: alphabet_runner/build/app/outputs/flutter-apk/app-debug.apk
+          retention-days: 30
+
+      - name: Upload Release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: alphabet-runner-release-apk
+          path: alphabet_runner/build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 30
+
+      - name: Build summary
+        run: |
+          echo "## 🎮 Alphabet Runner APK is ready!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Download the APK from the **Artifacts** section above." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Install on Android" >> $GITHUB_STEP_SUMMARY
+          echo "1. Download **alphabet-runner-debug-apk** (easiest to install)" >> $GITHUB_STEP_SUMMARY
+          echo "2. Transfer to your Android device" >> $GITHUB_STEP_SUMMARY
+          echo "3. **Settings → Security → Unknown Sources** → Enable" >> $GITHUB_STEP_SUMMARY
+          echo "4. Tap the APK file to install" >> $GITHUB_STEP_SUMMARY
+          echo "5. Open **Alphabet Runner** and let the kids learn! 🦊" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### How to play" >> $GITHUB_STEP_SUMMARY
+          echo "- A big letter appears on screen" >> $GITHUB_STEP_SUMMARY
+          echo "- Shout the letter out loud 🗣️" >> $GITHUB_STEP_SUMMARY
+          echo "- Rufus the Fox jumps over the obstacle 🦊" >> $GITHUB_STEP_SUMMARY
+          echo "- No mic? Tap the letter on the keyboard!" >> $GITHUB_STEP_SUMMARY
