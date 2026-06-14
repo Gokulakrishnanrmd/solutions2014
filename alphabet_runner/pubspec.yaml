@@ -1,0 +1,26 @@
+name: alphabet_runner
+description: A fun 2D alphabet learning game for kids — run, jump and say the letter!
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flame: ^1.18.0
+  speech_to_text: ^6.6.2
+  flutter_tts: ^4.0.2
+  permission_handler: ^11.3.1
+  cupertino_icons: ^1.0.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/
